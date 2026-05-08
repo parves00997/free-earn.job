@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>ফ্রি আর্ন | AdsGram রেডি</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{background:linear-gradient(145deg,#0c1122,#080c18);font-family:'Segoe UI',system-ui;color:#f0f3fc;padding:20px 16px 45px;}
+        .app{max-width:550px;margin:0 auto;}
+        .card{background:rgba(18,28,45,0.8);backdrop-filter:blur(12px);border-radius:32px;padding:20px;margin-bottom:24px;border:1px solid rgba(255,200,100,0.25);}
+        .balance-amount{font-size:2.5rem;font-weight:800;background:linear-gradient(135deg,#FFE6B0,#FFB347);-webkit-background-clip:text;background-clip:text;color:transparent;margin:8px 0;}
+        .dashboard-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px;}
+        .dash-item{background:rgba(0,0,0,0.35);border-radius:24px;padding:12px;text-align:center;}
+        .dash-value{font-size:1.5rem;font-weight:bold;color:#FFD966;}
+        button{background:#f5a623;border:none;padding:8px 18px;border-radius:60px;font-weight:bold;cursor:pointer;margin:5px 0;color:#1e1b13;}
+        .btn-telegram{background:#27a6e6;color:white;}
+        .claim-btn{background:#ff8c42;}
+        .withdraw-btn{background:#2a7f6e;color:white;width:100%;margin-top:10px;}
+        .job-list{display:flex;flex-direction:column;gap:12px;margin-top:10px;}
+        .job-item{background:rgba(10,15,28,0.7);border-radius:24px;padding:14px;border:1px solid #2e3a55;margin-bottom:10px;}
+        .instruction{font-size:0.7rem;color:#aad4ff;margin-top:8px;}
+        input,.withdraw-input{width:100%;padding:12px;border-radius:60px;background:#1b2337;border:none;color:white;margin:12px 0;}
+        .method-option{background:#1e2b3c;padding:6px 18px;border-radius:40px;cursor:pointer;display:inline-block;margin-right:10px;}
+        .method-active{background:#f5a623;color:black;font-weight:bold;}
+        .note{font-size:0.6rem;text-align:center;margin-top:15px;color:#99a4cf;}
+        .disabled-btn{background:#4a5b74;cursor:not-allowed;opacity:0.7;}
+        .profile-card{display:flex;align-items:center;gap:15px;margin-bottom:20px;background:rgba(0,0,0,0.3);border-radius:60px;padding:8px 20px 8px 10px;}
+        .profile-pic{width:55px;height:55px;border-radius:50%;background:#f5a623;display:flex;align-items:center;justify-content:center;font-size:1.8rem;overflow:hidden;}
+        .profile-pic img{width:100%;height:100%;object-fit:cover;}
+        .welcome-text{font-size:1rem;font-weight:bold;}
+        .username-text{font-size:0.8rem;color:#bbccff;}
+    </style>
+</head>
+<body>
+<div class="app">
+    <div class="card" id="profileCard" style="display:none;">
+        <div class="profile-card"><div class="profile-pic" id="profilePic">👤</div><div><div class="welcome-text" id="welcomeMsg">স্বাগতম!</div><div class="username-text" id="userNameText"></div></div></div>
+    </div>
+    <div class="card"><div>💰 আমার ওয়ালেট</div><div class="balance-amount" id="balanceDisplay">0</div>
+        <div class="dashboard-grid">
+            <div class="dash-item"><div class="dash-value" id="totalEarnedDisplay">0</div><div>⭐ মোট ইনকাম</div></div>
+            <div class="dash-item"><div class="dash-value" id="tasksCompletedDisplay">0</div><div>✅ টাস্ক পূর্ণ</div></div>
+            <div class="dash-item"><div class="dash-value" id="telegramStatus">❌</div><div>📢 টেলিগ্রাম</div></div>
+            <div class="dash-item"><div class="dash-value" id="dailyBonusStatus">❌</div><div>🎁 বোনাস</div></div>
+        </div>
+    </div>
+    <div class="card"><div>🎁 ডেইলি বোনাস (+20)</div><button id="dailyBonusBtn">ক্লিক করুন</button><hr><div>📢 টেলিগ্রাম জয়েন (+25)</div><button id="telegramJoinBtn" class="btn-telegram">জয়েন & ক্লেইম</button></div>
+    <div class="card"><h3>📺 মাই ডেইলি জব (এড ভিউ)</h3><div class="job-list" id="dailyJobList"></div></div>
+    <div class="card"><h3>💸 উইথড্র করুন</h3>
+        <div id="methodSelect"><span data-method="bks" class="method-option method-active">বিকাশ</span><span data-method="nagad" class="method-option">নগদ</span><span data-method="rocket" class="method-option">রকেট</span></div>
+        <input type="number" id="withdrawPoints" placeholder="পয়েন্ট সংখ্যা"><input type="text" id="withdrawAccount" placeholder="অ্যাকাউন্ট নম্বর">
+        <div id="minWithdrawText" class="note">ন্যূনতম: বিকাশ/নগদ ৫০০, রকেট ৮০০</div>
+        <button id="withdrawRequestBtn" class="withdraw-btn">উইথড্র রিকোয়েস্ট</button>
+    </div>
+</div>
+<script>
+    let tg = window.Telegram?.WebApp;
+    let userId = "guest";
+    if (tg) { tg.ready(); tg.expand(); const u = tg.initDataUnsafe?.user; if (u) { userId = u.id.toString(); document.getElementById("profileCard").style.display = "block"; document.getElementById("welcomeMsg").innerHTML = `👋 স্বাগতম, ${u.first_name || ''}!`; document.getElementById("userNameText").innerHTML = `@${u.username || (u.first_name || '')}`; const pp = document.getElementById("profilePic"); if (u.photo_url) pp.innerHTML = `<img src="${u.photo_url}">`; else pp.innerHTML = u.first_name ? u.first_name.charAt(0).toUpperCase() : '👤'; } }
+    const ADSGRAM_BLOCK_ID = "29629";
+    const STORAGE_PREFIX = "freeEarn_";
+    let userData = { balance:0, totalEarned:0, completedTaskCount:0, lastDailyBonusTimestamp:null, telegramClaimed:false, dailyAds:[] };
+    const AD_LINKS = ["https://www.google.com","https://www.youtube.com","https://www.facebook.com","https://www.instagram.com","https://www.twitter.com","https://www.wikipedia.org","https://www.bing.com","https://www.linkedin.com","https://www.amazon.com","https://www.reddit.com"];
+    function initDailyAds() { let arr=[]; for(let i=0;i<10;i++) arr.push({ id:i, reward:12, status:"pending", adUrl:AD_LINKS[i] }); return arr; }
+    function loadData() { const saved = localStorage.getItem(STORAGE_PREFIX+userId); if(saved) { try { const d=JSON.parse(saved); userData={...userData,...d}; if(!userData.dailyAds || userData.dailyAds.length!==10) userData.dailyAds=initDailyAds(); } catch(e){ resetDefault(); } } else resetDefault(); renderAll(); }
+    function resetDefault() { userData={ balance:0, totalEarned:0, completedTaskCount:0, lastDailyBonusTimestamp:null, telegramClaimed:false, dailyAds:initDailyAds() }; }
+    function saveData() { localStorage.setItem(STORAGE_PREFIX+userId, JSON.stringify(userData)); }
+    function renderAll() { document.getElementById("balanceDisplay").innerText=userData.balance; document.getElementById("totalEarnedDisplay").innerText=userData.totalEarned; document.getElementById("tasksCompletedDisplay").innerText=userData.completedTaskCount; document.getElementById("telegramStatus").innerHTML=userData.telegramClaimed?"✅ সম্পন্ন":"❌ করেনি"; let now=Date.now(); let canBonus=(!userData.lastDailyBonusTimestamp||now>=userData.lastDailyBonusTimestamp+86400000); document.getElementById("dailyBonusStatus").innerHTML=canBonus?"✅ নিতে পারেন":"⏳ অপেক্ষা করুন"; let dailyBtn=document.getElementById("dailyBonusBtn"); if(!canBonus){ dailyBtn.disabled=true; dailyBtn.classList.add("disabled-btn"); } else { dailyBtn.disabled=false; dailyBtn.classList.remove("disabled-btn"); } let tgBtn=document.getElementById("telegramJoinBtn"); if(userData.telegramClaimed){ tgBtn.disabled=true; tgBtn.classList.add("disabled-btn"); } else { tgBtn.disabled=false; tgBtn.classList.remove("disabled-btn"); } renderDailyJobs(); }
+    function renderDailyJobs() { let container=document.getElementById("dailyJobList"); if(!container) return; container.innerHTML=""; userData.dailyAds.forEach(ad=>{ let div=document.createElement("div"); div.className="job-item"; let btnHtml=""; if(ad.status==="pending") btnHtml=`<button class="claim-btn" data-id="${ad.id}">🎬 এড দেখুন</button>`; else if(ad.status==="ready") btnHtml=`<button class="claim-btn" data-id="${ad.id}">✅ পয়েন্ট নিন (+12)</button>`; else btnHtml=`<button disabled class="disabled-btn">🙌 সম্পন্ন</button>`; div.innerHTML=`<div><b>📺 এড #${ad.id+1}</b><br><span>⭐ রিওয়ার্ড: 12 পয়েন্ট</span></div>${btnHtml}<div class="instruction">⏱️ এড দেখুন → ১০ সেকেন্ড দেখুন → ব্যাক করে পয়েন্ট নিন</div>`; let btn=div.querySelector("button"); if(btn && ad.status!=="claimed") btn.addEventListener("click",(e)=>{ e.preventDefault(); e.stopPropagation(); handleAdAction(ad.id); }); container.appendChild(div); }); }
+    function handleAdAction(adId){ let ad=userData.dailyAds.find(a=>a.id===adId); if(!ad) return; if(ad.status==="pending"){ if(typeof Adsgram!=="undefined" && ADSGRAM_BLOCK_ID){ try{ let adCtrl=Adsgram.getBlock(ADSGRAM_BLOCK_ID); adCtrl.show().then(()=>{ sessionStorage.setItem(`adTimer_${adId}`,Date.now()); showToast("AdsGram এড চলছে, ১০ সেকেন্ড পর পয়েন্ট নিন"); }).catch(()=>{ window.open(ad.adUrl,"_blank"); sessionStorage.setItem(`adTimer_${adId}`,Date.now()); }); }catch(e){ window.open(ad.adUrl,"_blank"); sessionStorage.setItem(`adTimer_${adId}`,Date.now()); } }else{ window.open(ad.adUrl,"_blank"); sessionStorage.setItem(`adTimer_${adId}`,Date.now()); } } else if(ad.status==="ready"){ ad.status="claimed"; userData.balance+=ad.reward; userData.totalEarned+=ad.reward; userData.completedTaskCount++; saveData(); renderAll(); showToast(`🎉 +${ad.reward} পয়েন্ট যুক্ত হয়েছে!`); } }
+    window.addEventListener("focus",()=>{ let updated=false; userData.dailyAds.forEach(ad=>{ if(ad.status==="pending"){ let start=sessionStorage.getItem(`adTimer_${ad.id}`); if(start && (Date.now()-parseInt(start))>=10000){ ad.status="ready"; sessionStorage.removeItem(`adTimer_${ad.id}`); updated=true; showToast(`✅ এড #${ad.id+1} দেখার সময় পূর্ণ! এখন পয়েন্ট নিন।`); } } }); if(updated){ renderDailyJobs(); saveData(); } });
+    function claimDailyBonus(){ let now=Date.now(); if(userData.lastDailyBonusTimestamp && now<userData.lastDailyBonusTimestamp+86400000){ showToast("আজ বোনাস নিয়েছেন! কাল আসবেন"); return; } userData.lastDailyBonusTimestamp=now; userData.balance+=20; userData.totalEarned+=20; saveData(); renderAll(); showToast("🎁 বোনাস +20 পয়েন্ট!"); }
+    function claimTelegram(){ if(userData.telegramClaimed){ showToast("টেলিগ্রাম বোনাস আগেই নিয়েছেন!"); return; } window.open("https://t.me/freeearnofficial","_blank"); userData.telegramClaimed=true; userData.balance+=25; userData.totalEarned+=25; saveData(); renderAll(); showToast("🎉 টেলিগ্রাম বোনাস +25 পয়েন্ট!"); }
+    let selectedMethod="bks"; function requestWithdraw(){ let points=parseInt(document.getElementById("withdrawPoints").value); let acc=document.getElementById("withdrawAccount").value.trim(); if(isNaN(points)||points<=0){ showToast("সঠিক পয়েন্ট সংখ্যা লিখুন"); return; } if(!acc){ showToast("অ্যাকাউন্ট নম্বর দিন"); return; } let minReq=selectedMethod==="rocket"?800:500; if(points<minReq){ showToast(`উইথড্র করতে ন্যূনতম ${minReq} পয়েন্ট দরকার`); return; } if(userData.balance<points){ showToast(`আপনার ব্যালেন্স ${userData.balance}, ${points} পয়েন্ট পারবেন না`); return; } showToast(`উইথড্র রিকোয়েস্ট গৃহীত! (${selectedMethod}, ${acc}, ${points})`); }
+    function showToast(msg){ let t=document.createElement("div"); t.innerText=msg; t.style.position="fixed"; t.style.bottom="30px"; t.style.left="50%"; t.style.transform="translateX(-50%)"; t.style.backgroundColor="#1f293d"; t.style.color="#FFDEB3"; t.style.padding="9px 20px"; t.style.borderRadius="40px"; t.style.zIndex="9999"; t.style.border="1px solid #F59E0B"; t.style.fontSize="0.8rem"; t.style.fontWeight="bold"; document.body.appendChild(t); setTimeout(()=>t.remove(),2500); }
+    document.addEventListener("DOMContentLoaded",()=>{ loadData(); document.getElementById("dailyBonusBtn").addEventListener("click",claimDailyBonus); document.getElementById("telegramJoinBtn").addEventListener("click",claimTelegram); document.getElementById("withdrawRequestBtn").addEventListener("click",requestWithdraw); document.querySelectorAll(".method-option").forEach(opt=>{ opt.addEventListener("click",()=>{ document.querySelectorAll(".method-option").forEach(o=>o.classList.remove("method-active")); opt.classList.add("method-active"); selectedMethod=opt.getAttribute("data-method"); let minSpan=document.getElementById("minWithdrawText"); if(selectedMethod==="rocket") minSpan.innerText="ন্যূনতম: ৮০০ পয়েন্ট (রকেট)"; else minSpan.innerText="ন্যূনতম: ৫০০ পয়েন্ট (বিকাশ/নগদ)"; }); }); });
+</script>
+<script async src="https://adsgram.ai/js/adsgram.js"></script>
+</body>
+</html>
