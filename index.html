@@ -58,7 +58,7 @@
     let tg = window.Telegram?.WebApp;
     let userId = "guest";
     if (tg) { tg.ready(); tg.expand(); const u = tg.initDataUnsafe?.user; if (u) { userId = u.id.toString(); document.getElementById("profileCard").style.display = "block"; document.getElementById("welcomeMsg").innerHTML = `👋 স্বাগতম, ${u.first_name || ''}!`; document.getElementById("userNameText").innerHTML = `@${u.username || (u.first_name || '')}`; const pp = document.getElementById("profilePic"); if (u.photo_url) pp.innerHTML = `<img src="${u.photo_url}">`; else pp.innerHTML = u.first_name ? u.first_name.charAt(0).toUpperCase() : '👤'; } }
-    const ADSGRAM_BLOCK_ID = "29629";
+    const ADSGRAM_BLOCK_ID = "29709";
     const STORAGE_PREFIX = "freeEarn_";
     let userData = { balance:0, totalEarned:0, completedTaskCount:0, lastDailyBonusTimestamp:null, telegramClaimed:false, dailyAds:[] };
     const AD_LINKS = ["https://www.google.com","https://www.youtube.com","https://www.facebook.com","https://www.instagram.com","https://www.twitter.com","https://www.wikipedia.org","https://www.bing.com","https://www.linkedin.com","https://www.amazon.com","https://www.reddit.com"];
